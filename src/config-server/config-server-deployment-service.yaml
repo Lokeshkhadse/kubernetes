@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server-app
+spec:
+  selector:
+    matchLabels:
+      app: config-server-app
+  template:
+    metadata:
+      labels:
+        app: config-server-app
+    spec:
+      containers:
+      - name: config-server-app
+        image: Lokeshkhadse/configServer   #docker hub path of image of configserver
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 1001
+        env:
+           - name: EUREAK_SERVER_ADDRESS #THIS IS NAME WHICH WE ADD IN APPLICATION.PROPERTIES CONFIG-SERVICE
+             valueFrom:
+               configMapKeyRef:
+                 key: eureka_service_address   # this key is present in config-map.yaml
+                 name: eureka-config-map        # config-map yaml file this metadat name
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server-service-svc
+spec:
+  selector:
+    app: config-server-app
+  ports:
+  - port: 80               # default port of http 
+    targetPort: 1001        #config service running on this port in my application

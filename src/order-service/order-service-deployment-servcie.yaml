@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service-deployment-app
+spec:
+  selector:
+    matchLabels:
+      app: order-service-deployment-app
+  template:
+    metadata:
+      labels:
+        app: order-service-deployment-app
+    spec:
+      containers:
+      - name: order-service-deployment-app
+        image: Lokeshkhadse/order-service
+        ports:
+        - containerPort: 1003
+
+        env:
+          - name: EUREAK_SERVER_ADDRESS 
+            valueFrom:
+              configMapKeyRef:
+                key: eureka_service_address   
+                name: eureka-config-map        
+        
+          - name: CONFIG_SERVER_URL 
+            valueFrom:
+              configMapKeyRef:
+                key: config_url  
+                name: config-service-config-map 
+
+          - name: DB_HOST 
+            valueFrom:
+              configMapKeyRef:
+                key: hostname  
+                name: mysql-config-map    
+
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service-svc
+spec:
+  selector:
+    app: order-service-deployment-app
+  ports:
+  - port: 80
+    targetPort: 1003

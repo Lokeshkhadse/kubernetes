@@ -1,0 +1,651 @@
+{\rtf1\fbidis\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset0 Arial;}{\f2\fnil\fcharset1 Segoe UI Symbol;}{\f3\fnil Arial;}{\f4\fnil\fcharset1 Segoe UI Symbol;}{\f5\fnil\fcharset1 Segoe UI Emoji;}}
+{\colortbl ;\red255\green0\blue0;}
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\b\f0\fs36\lang9 kubarnates in microservice\par
+\par
+\par
+\f1\fs22 food-catering-project/\par
+\f2\u9474?\f1\par
+\f2\u9500?\u9472?\u9472?\f3  \f1 service1/\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 Dockerfile\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 application.yml\par
+\f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 k8s/\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 deployment.yaml\par
+\f2\u9474?\f3        \f2\u9492?\u9472?\u9472?\f3  \f1 service.yaml\par
+\f2\u9474?\f1\par
+\f2\u9500?\u9472?\u9472?\f3  \f1 service2/\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 Dockerfile\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 application.yml\par
+\f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 k8s/\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 deployment.yaml\par
+\f2\u9474?\f3        \f2\u9492?\u9472?\u9472?\f3  \f1 service.yaml\par
+\f2\u9474?\f1\par
+\f2\u9500?\u9472?\u9472?\f3  \f1 service3/\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 Dockerfile\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 application.yml\par
+\f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 k8s/\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 deployment.yaml\par
+\f2\u9474?\f3        \f2\u9492?\u9472?\u9472?\f3  \f1 service.yaml\par
+\f2\u9474?\f1\par
+\f2\u9500?\u9472?\u9472?\f3  \f1 databases/\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 mysql/\par
+\f2\u9474?\f3    \f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 mysql-deployment.yaml\par
+\f2\u9474?\f3    \f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 mysql-service.yaml\par
+\f2\u9474?\f3    \f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 mysql-pvc.yaml\par
+\f2\u9474?\f3    \f2\u9474?\f1\par
+\f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 oracle/\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 oracle-deployment.yaml\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 oracle-service.yaml\par
+\f2\u9474?\f3        \f2\u9492?\u9472?\u9472?\f3  \f1 oracle-pvc.yaml\par
+\f2\u9474?\f1\par
+\f2\u9492?\u9472?\u9472?\f3  \f1 k8s-global/\par
+\f3     \f2\u9492?\u9472?\u9472?\f3  \f1 ingress.yaml\par
+\par
+\par
+\f4\u-10179?\u-8921?\f3  \f1 Dockerfile (in each service)\par
+           dockerfile\par
+FROM openjdk:17\par
+COPY target/*.jar app.jar\par
+ENTRYPOINT ["java", "-jar", "/app.jar"]\par
+\par
+\par
+\f5\u9881?\u-497?\f3  \f1 application.yml (in each service)\par
+server:\par
+  port: 8080  # Change per service\par
+spring:\par
+  datasource:\par
+    url: jdbc:mysql://mysql-service:3306/your_db\par
+    username: root\par
+    password: password\par
+\par
+\par
+\f4\u-10179?\u-8986?\f3  \f1 k8s/deployment.yaml (for each service)\par
+apiVersion: apps/v1\par
+kind: Deployment\par
+metadata:\par
+  name: service1-deployment\par
+spec:\par
+  replicas: 2\par
+  selector:\par
+    matchLabels:\par
+      app: service1\par
+  template:\par
+    metadata:\par
+      labels:\par
+        app: service1\par
+    spec:\par
+      containers:\par
+        - name: service1\par
+          image: your-dockerhub/service1:latest\par
+          ports:\par
+            - containerPort: 8080\par
+\par
+\par
+\f4\u-10180?\u-8432?\f3  \f1 k8s/service.yaml (for each service)\par
+apiVersion: v1\par
+kind: Service\par
+metadata:\par
+  name: service1\par
+spec:\par
+  selector:\par
+    app: service1\par
+  ports:\par
+    - protocol: TCP\par
+      port: 80\par
+      targetPort: 8080\par
+  type: ClusterIP\par
+\par
+\par
+\f4\u-10179?\u-9172?\f3  \f1 databases/mysql/mysql-deployment.yaml\par
+apiVersion: apps/v1\par
+kind: Deployment\par
+metadata:\par
+  name: mysql\par
+spec:\par
+  selector:\par
+    matchLabels:\par
+      app: mysql\par
+  replicas: 1\par
+  template:\par
+    metadata:\par
+      labels:\par
+        app: mysql\par
+    spec:\par
+      containers:\par
+        - name: mysql\par
+          image: mysql:8\par
+          env:\par
+            - name: MYSQL_ROOT_PASSWORD\par
+              value: password\par
+            - name: MYSQL_DATABASE\par
+              value: your_db\par
+          ports:\par
+            - containerPort: 3306\par
+          volumeMounts:\par
+            - name: mysql-pv\par
+              mountPath: /var/lib/mysql\par
+      volumes:\par
+        - name: mysql-pv\par
+          persistentVolumeClaim:\par
+            claimName: mysql-pvc\par
+\par
+\par
+\f4\u-10179?\u-8991?\f3  \f1 databases/mysql/mysql-service.yaml\par
+apiVersion: v1\par
+kind: Service\par
+metadata:\par
+  name: mysql-service\par
+spec:\par
+  selector:\par
+    app: mysql\par
+  ports:\par
+    - protocol: TCP\par
+      port: 3306\par
+      targetPort: 3306\par
+\par
+\par
+\f4\u-10179?\u-9026?\f3  \f1 databases/mysql/mysql-pvc.yaml\par
+apiVersion: v1\par
+kind: PersistentVolumeClaim\par
+metadata:\par
+  name: mysql-pvc\par
+spec:\par
+  accessModes:\par
+    - ReadWriteOnce\par
+  resources:\par
+    requests:\par
+      storage: 1Gi\par
+\par
+\par
+\f5\u-10179?\u-8478?\u-497?\f3  \f1 databases/oracle/oracle-deployment.yaml\par
+apiVersion: apps/v1\par
+kind: Deployment\par
+metadata:\par
+  name: oracle\par
+spec:\par
+  replicas: 1\par
+  selector:\par
+    matchLabels:\par
+      app: oracle\par
+  template:\par
+    metadata:\par
+      labels:\par
+        app: oracle\par
+    spec:\par
+      containers:\par
+        - name: oracle\par
+          image: gvenzl/oracle-xe:21-slim\par
+          env:\par
+            - name: ORACLE_PASSWORD\par
+              value: password\par
+          ports:\par
+            - containerPort: 1521\par
+          volumeMounts:\par
+            - name: oracle-pv\par
+              mountPath: /opt/oracle/oradata\par
+      volumes:\par
+        - name: oracle-pv\par
+          persistentVolumeClaim:\par
+            claimName: oracle-pvc\par
+\par
+\par
+\f4\u-10179?\u-8991?\f3  \f1 databases/oracle/oracle-service.yaml\par
+apiVersion: v1\par
+kind: Service\par
+metadata:\par
+  name: oracle-service\par
+spec:\par
+  selector:\par
+    app: oracle\par
+  ports:\par
+    - protocol: TCP\par
+      port: 1521\par
+      targetPort: 1521\par
+\par
+\par
+\f4\u-10179?\u-9026?\f3  \f1 databases/oracle/oracle-pvc.yaml\par
+apiVersion: v1\par
+kind: PersistentVolumeClaim\par
+metadata:\par
+  name: oracle-pvc\par
+spec:\par
+  accessModes:\par
+    - ReadWriteOnce\par
+  resources:\par
+    requests:\par
+      storage: 1Gi\par
+\par
+\par
+\f4\u-10180?\u-8435?\f3  \f1 k8s-global/ingress.yaml (optional if using Ingress Controller)\par
+apiVersion: networking.k8s.io/v1\par
+kind: Ingress\par
+metadata:\par
+  name: food-catering-ingress\par
+  annotations:\par
+    nginx.ingress.kubernetes.io/rewrite-target: /\par
+spec:\par
+  rules:\par
+    - host: food.local\par
+      http:\par
+        paths:\par
+          - path: /service1\par
+            pathType: Prefix\par
+            backend:\par
+              service:\par
+                name: service1\par
+                port:\par
+                  number: 80\par
+          - path: /service2\par
+            pathType: Prefix\par
+            backend:\par
+              service:\par
+                name: service2\par
+                port:\par
+                  number: 80\par
+\par
+command step by step:-\par
+\f4\u-10179?\u-8576?\f3  \f1 Deployment Flow\par
+Build Docker Images for each service:\par
+docker build -t your-dockerhub/service1:latest ./service1\par
+docker build -t your-dockerhub/service2:latest ./service2\par
+docker build -t your-dockerhub/service3:latest ./service3\par
+\par
+\par
+Push to Docker Hub:\par
+docker push your-dockerhub/service1:latest\par
+# Repeat for others\par
+\par
+\par
+Deploy Databases First:\par
+kubectl apply -f databases/mysql/\par
+kubectl apply -f databases/oracle/\par
+\par
+\par
+Deploy Microservices:\par
+kubectl apply -f service1/k8s/\par
+kubectl apply -f service2/k8s/\par
+kubectl apply -f service3/k8s/\par
+\par
+\par
+(Optional) If using Ingress, apply:\par
+kubectl apply -f k8s-global/ingress.yaml\par
+\par
+\par
+\par
+\par
+\par
+\par
+\cf1\fs72 NEW UPDATED CODE\par
+\cf0\b0\f4\fs24\u-10179?\u-9023?\f3  \f1 Project Structure\par
+food-catering-project/\par
+\f2\u9500?\u9472?\u9472?\f3  \f1 service1/\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 Dockerfile\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 application.yml\par
+\f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 k8s/\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 deployment.yaml\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 service.yaml\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 configmap.yaml\par
+\f2\u9474?\f3        \f2\u9492?\u9472?\u9472?\f3  \f1 secret.yaml\par
+\f2\u9500?\u9472?\u9472?\f3  \f1 service2/\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 Dockerfile\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 application.yml\par
+\f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 k8s/\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 deployment.yaml\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 service.yaml\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 configmap.yaml\par
+\f2\u9474?\f3        \f2\u9492?\u9472?\u9472?\f3  \f1 secret.yaml\par
+\f2\u9500?\u9472?\u9472?\f3  \f1 service3/\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 Dockerfile\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 application.yml\par
+\f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 k8s/\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 deployment.yaml\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 service.yaml\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 configmap.yaml\par
+\f2\u9474?\f3        \f2\u9492?\u9472?\u9472?\f3  \f1 secret.yaml\par
+\f2\u9500?\u9472?\u9472?\f3  \f1 databases/\par
+\f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 mysql/\par
+\f2\u9474?\f3    \f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 mysql-deployment.yaml\par
+\f2\u9474?\f3    \f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 mysql-service.yaml\par
+\f2\u9474?\f3    \f2\u9474?\f3    \f2\u9500?\u9472?\u9472?\f3  \f1 mysql-pvc.yaml\par
+\f2\u9474?\f3    \f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 mysql-secret.yaml\par
+\f2\u9474?\f3    \f2\u9492?\u9472?\u9472?\f3  \f1 oracle/\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 oracle-deployment.yaml\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 oracle-service.yaml\par
+\f2\u9474?\f3        \f2\u9500?\u9472?\u9472?\f3  \f1 oracle-pvc.yaml\par
+\f2\u9474?\f3        \f2\u9492?\u9472?\u9472?\f3  \f1 oracle-secret.yaml\par
+\f2\u9492?\u9472?\u9472?\f3  \f1 k8s-global/\par
+\f3     \f2\u9492?\u9472?\u9472?\f3  \f1 ingress.yaml\par
+\par
+\par
+\par
+\f4\u-10179?\u-9165?\f3  \f1 Dockerfile (for each service)\par
+dockerfile\par
+FROM openjdk:17-jdk-slim\par
+COPY target/*.jar app.jar\par
+ENTRYPOINT ["java", "-jar", "/app.jar"]\par
+\par
+\par
+\f5\u9881?\u-497?\f3  \f1 application.yml (for each service)\par
+server:\par
+  port: 8080\par
+\par
+spring:\par
+  datasource:\par
+    url: jdbc:mysql://mysql-service:3306/your_db\par
+    username: $\{DB_USERNAME\}\par
+    password: $\{DB_PASSWORD\}\par
+\par
+\par
+\par
+\f4\u-10179?\u-8986?\f3  \f1 k8s/deployment.yaml (for each service)\par
+apiVersion: apps/v1\par
+kind: Deployment\par
+metadata:\par
+  name: service1-deployment\par
+spec:\par
+  replicas: 2\par
+  selector:\par
+    matchLabels:\par
+      app: service1\par
+  template:\par
+    metadata:\par
+      labels:\par
+        app: service1\par
+    spec:\par
+      containers:\par
+        - name: service1\par
+          image: your-dockerhub/service1:latest\par
+          ports:\par
+            - containerPort: 8080\par
+          env:\par
+            - name: DB_USERNAME\par
+              valueFrom:\par
+                secretKeyRef:\par
+                  name: service1-secret\par
+                  key: db-username\par
+            - name: DB_PASSWORD\par
+              valueFrom:\par
+                secretKeyRef:\par
+                  name: service1-secret\par
+                  key: db-password\par
+          volumeMounts:\par
+            - name: config-volume\par
+              mountPath: /config\par
+              readOnly: true\par
+      volumes:\par
+        - name: config-volume\par
+          configMap:\par
+            name: service1-config\par
+\par
+\par
+\f4\u-10180?\u-8432?\f3  \f1 k8s/service.yaml (for each service)\par
+apiVersion: v1\par
+kind: Service\par
+metadata:\par
+  name: service1\par
+spec:\par
+  selector:\par
+    app: service1\par
+  ports:\par
+    - protocol: TCP\par
+      port: 80\par
+      targetPort: 8080\par
+  type: ClusterIP\par
+\par
+\par
+\f5\u-10179?\u-8766?\u-497?\f3  \f1 k8s/configmap.yaml (for each service)\par
+apiVersion: v1\par
+kind: ConfigMap\par
+metadata:\par
+  name: service1-config\par
+data:\par
+  application.yml: |\par
+    server:\par
+      port: 8080\par
+    spring:\par
+      datasource:\par
+        url: jdbc:mysql://mysql-service:3306/your_db\par
+\par
+\par
+\f4\u-10179?\u-8944?\f3  \f1 k8s/secret.yaml (for each service)\par
+apiVersion: v1\par
+kind: Secret\par
+metadata:\par
+  name: service1-secret\par
+type: Opaque\par
+data:\par
+  db-username: cm9vdA==   # base64 for 'root'\par
+  db-password: cGFzc3dvcmQ=   # base64 for 'password'\par
+\par
+\par
+\f4\u-10179?\u-9172?\f3  \f1 databases/mysql/mysql-deployment.yaml\par
+apiVersion: apps/v1\par
+kind: Deployment\par
+metadata:\par
+  name: mysql\par
+spec:\par
+  selector:\par
+    matchLabels:\par
+      app: mysql\par
+  replicas: 1\par
+  template:\par
+    metadata:\par
+      labels:\par
+        app: mysql\par
+    spec:\par
+      containers:\par
+        - name: mysql\par
+          image: mysql:8\par
+          env:\par
+            - name: MYSQL_ROOT_PASSWORD\par
+              valueFrom:\par
+                secretKeyRef:\par
+                  name: mysql-secret\par
+                  key: root-password\par
+            - name: MYSQL_DATABASE\par
+              value: your_db\par
+          ports:\par
+            - containerPort: 3306\par
+          volumeMounts:\par
+            - name: mysql-pv\par
+              mountPath: /var/lib/mysql\par
+      volumes:\par
+        - name: mysql-pv\par
+          persistentVolumeClaim:\par
+            claimName: mysql-pvc\par
+\par
+\par
+\par
+\f4\u-10179?\u-8991?\f3  \f1 databases/mysql/mysql-service.yaml\par
+apiVersion: v1\par
+kind: Service\par
+metadata:\par
+  name: mysql-service\par
+spec:\par
+  selector:\par
+    app: mysql\par
+  ports:\par
+    - protocol: TCP\par
+      port: 3306\par
+      targetPort: 3306\par
+\par
+\par
+\f4\u-10179?\u-9026?\f3  \f1 databases/mysql/mysql-pvc.yaml\par
+apiVersion: v1\par
+kind: PersistentVolumeClaim\par
+metadata:\par
+  name: mysql-pvc\par
+spec:\par
+  accessModes:\par
+    - ReadWriteOnce\par
+  resources:\par
+    requests:\par
+      storage: 1Gi\par
+\par
+\par
+\f4\u-10179?\u-8944?\f3  \f1 databases/mysql/mysql-secret.yaml\par
+apiVersion: v1\par
+kind: Secret\par
+metadata:\par
+  name: mysql-secret\par
+type: Opaque\par
+data:\par
+  root-password: cGFzc3dvcmQ=   # base64 for 'password'\par
+\par
+\par
+\f5\u-10179?\u-8478?\u-497?\f3  \f1 databases/oracle/oracle-deployment.yaml\par
+apiVersion: apps/v1\par
+kind: Deployment\par
+metadata:\par
+  name: oracle\par
+spec:\par
+  replicas: 1\par
+  selector:\par
+    matchLabels:\par
+      app: oracle\par
+  template:\par
+    metadata:\par
+      labels:\par
+        app: oracle\par
+    spec:\par
+      containers:\par
+        - name: oracle\par
+          image: gvenzl/oracle-xe:21-slim\par
+          env:\par
+            - name: ORACLE_PASSWORD\par
+              valueFrom:\par
+                secretKeyRef:\par
+                  name: oracle-secret\par
+                  key: oracle-password\par
+          ports:\par
+            - containerPort: 1521\par
+          volumeMounts:\par
+            - name: oracle-pv\par
+              mountPath: /opt/oracle/oradata\par
+      volumes:\par
+        - name: oracle-pv\par
+          persistentVolumeClaim:\par
+            claimName: oracle-pvc\par
+\par
+\par
+\f4\u-10179?\u-8991?\f3  \f1 databases/oracle/oracle-service.yaml\par
+apiVersion: v1\par
+kind: Service\par
+metadata:\par
+  name: oracle-service\par
+spec:\par
+  selector:\par
+    app: oracle\par
+  ports:\par
+    - protocol: TCP\par
+      port: 1521\par
+      targetPort: 1521\par
+\par
+\par
+\f4\u-10179?\u-9026?\f3  \f1 databases/oracle/oracle-pvc.yaml\par
+apiVersion: v1\par
+kind: PersistentVolumeClaim\par
+metadata:\par
+  name: oracle-pvc\par
+spec:\par
+  accessModes:\par
+    - ReadWriteOnce\par
+  resources:\par
+    requests:\par
+      storage: 1Gi\par
+\par
+\par
+\f4\u-10179?\u-8944?\f3  \f1 databases/oracle/oracle-secret.yaml\par
+apiVersion: v1\par
+kind: Secret\par
+metadata:\par
+  name: oracle-secret\par
+type: Opaque\par
+data:\par
+  oracle-password: cGFzc3dvcmQ=   # base64 for 'password'\par
+\par
+\par
+\par
+\f4\u-10180?\u-8435?\f3  \f1 k8s-global/ingress.yaml (optional if using Ingress Controller)\par
+apiVersion: networking.k8s.io/v1\par
+kind: Ingress\par
+metadata:\par
+  name: food-catering-ingress\par
+  annotations:\par
+    nginx.ingress.kubernetes.io/rewrite-target: /\par
+spec:\par
+  rules:\par
+    - host: food.local\par
+      http:\par
+        paths:\par
+          - path: /service1\par
+            pathType: Prefix\par
+            backend:\par
+              service:\par
+                name: service1\par
+                port:\par
+                  number: 80\par
+          - path: /service2\par
+            pathType: Prefix\par
+            backend:\par
+              service:\par
+                name: service2\par
+                port:\par
+                  number: 80\par
+          - path: /service3\par
+            pathType: Prefix\par
+            backend:\par
+              service:\par
+                name: service3\par
+                port:\par
+                  number: 80\par
+\par
+\par
+\f4\u-10179?\u-8576?\f3  \f1 Deployment Flow\par
+Build Docker Images for each service:\par
+docker build -t your-dockerhub/service1:latest ./service1\par
+docker build -t your-dockerhub/service2:latest ./service2\par
+docker build -t your-dockerhub/service3:latest ./service3\par
+\par
+\par
+Push to Docker Hub:\par
+docker push your-dockerhub/service1:latest\par
+docker push your-dockerhub/service2:latest\par
+docker push your-dockerhub/service3:latest\par
+\par
+\par
+Deploy Databases First:\par
+kubectl apply -f databases/mysql/\par
+kubectl apply -f databases/oracle/\par
+\par
+Deploy Microservices:\par
+kubectl apply -f service1/k8s/\par
+kubectl apply -f service2/k8s/\par
+kubectl apply -f service3/k8s/\par
+\par
+\par
+(Optional) If using Ingress, apply:\par
+kubectl apply -f k8s-global/ingress.yaml\par
+\par
+\par
+\f2\u9989?\f3  \f1 Conclusion\par
+Your Kubernetes setup for the food-catering-project is now enhanced with best practices:\par
+\par
+ConfigMaps are used to manage non-sensitive configuration data, allowing for easy updates without rebuilding images.\par
+\par
+Secrets securely store sensitive information like database credentials, ensuring they are not exposed in plain text.\par
+\par
+Structured Deployment ensures each microservice is independently deployable and scalable.\par
+\par
+Ingress Controller (optional) provides a unified entry point to your services, facilitating better traffic management.\par
+\par
+This setup aligns with Kubernetes best practices, promoting scalability, maintainability, and security in your microservices architecture.\par
+\par
+\par
+\par
+\par
+\cf1\b\fs72\par
+\cf0\fs22\par
+\b0\par
+}
+ 

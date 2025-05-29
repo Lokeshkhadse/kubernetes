@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eureka-config-map
+data:
+  eureka_service_address: "http://eureka-0.eureka:8661/eureka"
+
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-service-config-map
+data:
+  config_url: "http://config-server-service-svc"
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config-map
+data:
+  hostname: "mysql-0.mysql"
